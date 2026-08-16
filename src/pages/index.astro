@@ -33,10 +33,10 @@ const recentNovels = novels
               {cat && <span class="tag">{cat}</span>}
               <!-- 修正箇所: series-label を <a> タグで囲んでリンク化しました -->
               {series && (
-                <a href={`/series/${series}`} class="series-link">
-                  <span class="series-label">{series}</span>
-                </a>
-              )}
+  <a href={`/series/${encodeURIComponent(series)}`} class="series-link">
+    <span class="series-label">{series}</span>
+  </a>
+)}
               <a href={`/novel/${novel.id}`}>{novel.title}</a>
             </li>
           );

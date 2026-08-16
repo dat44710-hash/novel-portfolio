@@ -23,7 +23,11 @@ const allNovels = (await getAllPosts()).sort(
           <li>
             <span class="date">{date}</span>
             {cat && <span class="tag">{cat}</span>}
-            {series && <span class="series-label">{series}</span>}
+           {series && (
+  <a href={`/series/${encodeURIComponent(series)}`} class="series-link">
+    <span class="series-label">{series}</span>
+  </a>
+)}
             <a href={`/novel/${novel.id}`}>{novel.title}</a>
           </li>
         );
