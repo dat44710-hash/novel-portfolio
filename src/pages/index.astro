@@ -1,0 +1,64 @@
+---
+import Layout from "../layouts/Layout.astro";
+import { client, getSeriesName } from "../lib/microcms";
+
+const response = await client.get({ endpoint: "toukou" });
+const novels = response.contents;
+
+const recentNovels = novels
+  .sort((a: any, b: any) => new Date(b.publishedAt).getTime() - new Date(a.publishedAt).getTime())
+  .slice(0, 3);
+---
+
+<Layout title="作品一覧">
+  <p class="page-lead">CATEGORY</p>
+  <div class="category-grid">
+    <a href="/category/オリジナル" class="category-card">オリジナル</a>
+    <a href="/category/ファンアート" class="category-card">ファンアート</a>
+  </div><p class="section-label">
+　作品の世界観・登場人物の設定および言動等、全て想像で構成されております<br/>
+　現実世界および作者とは関わりのない出来事・人物・世界としてお楽しみください<br/><br/></p>
+
+  <section>
+    <div class="page-lead">更新履歴</div>
+    {recentNovels.length === 0 ? (
+      <p class="empty">まだ更新情報はありません。</p>
+    ) : (
+      <ul class="tracklist">
+        {recentNovels.map((novel: any) => {
+          const date = new Date(novel.publishedAt).toLocaleDateString();
+          const cat = novel.category ? novel.category[0] : "";
+          const series = getSeriesName(novel);
+          return (
+            <li>
+              <span class="date">{date}</span>
+              {cat && <span class="tag">{cat}</span>}
+              <!-- 修正箇所: series-label を <a> タグで囲んでリンク化しました -->
+              {series && (
+                <a href={`/series/${series}`} class="series-link">
+                  <span class="series-label">{series}</span>
+                </a>
+              )}
+              <a href={`/novel/${novel.id}`}>{novel.title}</a>
+            </li>
+          );
+        })}
+      </ul>
+    )}
+    <a href="/history" class="more-link">▶過去の更新履歴をすべて見る →</a>
+  </section>
+</Layout>
+
+<style>
+  /* シリーズ名のリンクの設定（ホバー時に少し色を変えてリンクだと分かりやすくする） */
+  .series-link {
+    text-decoration: none;
+  }
+  .series-link .series-label {
+    transition: color 0.3s;
+    cursor: pointer;
+  }
+  .series-link:hover .series-label {
+    color: #fff; /* ホバー時に白く光るようにする */
+  }
+</style>

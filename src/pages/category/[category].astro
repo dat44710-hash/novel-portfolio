@@ -1,0 +1,97 @@
+---
+import Layout from "../../layouts/Layout.astro";
+import { client, getSeriesName } from "../../lib/microcms";
+
+export async function getStaticPaths() {
+  return [
+    { params: { category: "オリジナル" } },
+    { params: { category: "ファンアート" } },
+  ];
+}
+
+const { category } = Astro.params;
+
+const response = await client.get({ endpoint: "toukou" });
+const novels = response.contents.filter((novel: any) =>
+  novel.category && novel.category.includes(category)
+);
+
+// シリーズ名でグループ化する（シリーズ名が空欄の投稿は単発作品として扱う）
+const seriesMap = new Map<string, any[]>();
+const standalone: any[] = [];
+
+novels.forEach((novel: any) => {
+  const seriesName = getSeriesName(novel);
+  if (seriesName) {
+    if (!seriesMap.has(seriesName)) seriesMap.set(seriesName, []);
+    seriesMap.get(seriesName)!.push(novel);
+  } else {
+    standalone.push(novel);
+  }
+});
+
+const seriesEntries = Array.from(seriesMap.entries()).map(([name, items]) => {
+  const sorted = items.sort(
+    (a: any, b: any) => new Date(a.publishedAt).getTime() - new Date(b.publishedAt).getTime()
+  );
+  const latest = sorted[sorted.length - 1];
+  // seriesStatus は最新話の項目から取得（未設定の場合は「連載中」扱い）
+  const status = (latest.seriesStatus || "連載中").toString().trim();
+  return {
+    name,
+    count: sorted.length,
+    status,
+  };
+});
+---
+
+<Layout title={`${category} — note.`}>
+  <a href="/" class="back-link">← 一覧に戻る</a>
+  <h1>{category}</h1>
+  <p class="page-lead">{category}の作品一覧です。</p>
+
+  {novels.length === 0 ? (
+    <p class="empty">まだこのカテゴリには作品がありません。</p>
+  ) : (
+    <ul class="tracklist">
+      {seriesEntries.map((s) => (
+        <li class="series-entry">
+          <a href={`/series/${encodeURIComponent(s.name)}`} class="series-entry-link">
+            <span class="tag">シリーズ</span>
+            <span class="series-entry-title">{s.name}</span>
+            <span class="series-entry-meta">全{s.count}話・{s.status}</span>
+          </a>
+        </li>
+      ))}
+      {standalone.map((novel: any) => (
+        <li>
+          <a href={`/novel/${novel.id}`}>{novel.title}</a>
+        </li>
+      ))}
+    </ul>
+  )}
+</Layout>
+
+<style>
+  /* シリーズの行：タイトル左、話数+完結状態を右寄せの1行にまとめる */
+  .series-entry {
+    display: block;
+  }
+  .series-entry-link {
+    display: flex;
+    align-items: baseline;
+    gap: 14px;
+    color: var(--ink, #fff);
+  }
+  .series-entry-title {
+    flex: 1;
+  }
+  .series-entry-meta {
+    flex: none;
+    font-size: 12px;
+    color: var(--gray, #aaa);
+  }
+  .series-entry-link:hover .series-entry-title {
+    color: var(--gray, #aaa);
+  }
+</style>

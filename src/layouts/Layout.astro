@@ -1,0 +1,353 @@
+---
+import { ClientRouter } from 'astro:transitions';
+const { title = "note.", wide = false } = Astro.props;
+
+const path = Astro.url.pathname;
+const isWorks = path === "/" || path.startsWith("/category") || path.startsWith("/novel") || path.startsWith("/history");
+const isProfile = path.startsWith("/profile");
+const isContact = path.startsWith("/contact");
+---
+<html lang="ja">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>{title}</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@300;400;500;700&display=swap"
+      rel="stylesheet"
+    />
+    <ClientRouter />
+  </head>
+  <body>
+    <header class="site-header">
+      <nav class="site-nav">
+        <a href="/" class={isWorks ? "active" : ""}>作品一覧</a>
+        <a href="/profile" class={isProfile ? "active" : ""}>PROFILE</a>
+
+      </nav>
+    </header>
+
+    <main class={`page ${wide ? "page--wide" : ""}`} transition:animate="fade">
+      <slot />
+    </main>
+
+    <footer class="site-footer">
+    無断転載、二次利用、AI学習への使用は固くお断りいたします -dAt.
+    </footer>
+  </body>
+</html>
+
+<style is:global>
+  :root {
+    --bg: #0a0b0d;
+    --paper: #17181b;
+    --ink: #f1f2f4;
+    --gray: #c2c5ca;
+    --gray-dim: #8b8f96;
+    --gray-bright: #e2e3e6;
+    --line: #45484e;
+    --active: #ffffff;
+  }
+
+  * { box-sizing: border-box; }
+  html { scroll-behavior: smooth; }
+
+  body {
+    margin: 0;
+    background: var(--bg);
+    color: var(--ink);
+    font-family: "Noto Sans JP", sans-serif;
+    font-weight: 400;
+    line-height: 1.9;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  a { color: inherit; text-decoration: none; }
+
+  /* --- header / nav --- */
+  .site-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 16px;
+    padding: 22px 32px;
+    border-bottom: 1px solid var(--line);
+    position: sticky;
+    top: 0;
+    background: rgba(10, 11, 13, 0.9);
+    backdrop-filter: blur(6px);
+    z-index: 10;
+  }
+  .brand {
+    font-family: "Noto Sans JP", sans-serif;
+    font-weight: 400;
+    font-size: 22px;
+    color: var(--ink);
+    letter-spacing: 0.06em;
+  }
+  .site-nav {
+    display: flex;
+    gap: 28px;
+  }
+  .site-nav a {
+    font-size: 13px;
+    font-weight: 500;
+    color: var(--gray-bright);
+    letter-spacing: 0.1em;
+    padding-bottom: 3px;
+    border-bottom: 1px solid transparent;
+    transition: color 0.2s ease, border-color 0.2s ease;
+  }
+  .site-nav a:hover {
+    color: var(--ink);
+  }
+  .site-nav a.active {
+    color: var(--active);
+    border-color: var(--active);
+  }
+
+  /* --- page column --- */
+  .page {
+    max-width: 680px;
+    margin: 0 auto;
+    padding: 56px 24px 100px;
+    min-height: 60vh;
+    transition: max-width 0.2s ease;
+  }
+  .page--wide {
+    max-width: 960px;
+  }
+
+  .page h1 {
+    font-family: "Noto Sans JP", sans-serif;
+    font-weight: 400;
+    font-size: clamp(18px, 5vw, 18px);
+    letter-spacing: 0.01em;
+    margin: 0 0 2px;
+    color: var(--ink);
+  }
+  .page-lead {
+    color: var(--gray);
+    font-size: 18px;
+    margin: 0 0 20px;
+  }
+  /* 見出しを省いたページでは、最初の一文を控えめなリード文として立たせる */
+  .page > .page-lead:first-child {
+    font-size: 17px;
+    font-weight: 300;
+    color: var(--ink);
+    margin: 0 0 48px;
+  }
+
+  .site-footer {
+    text-align: center;
+    padding: 40px 20px 60px;
+    font-size: 12px;
+    color: var(--gray-bright);
+    letter-spacing: 0.05em;
+  }
+
+  /* --- category cards --- */
+  .category-grid {
+    display: flex;
+    gap: 14px;
+    flex-wrap: wrap;
+    margin-bottom: 56px;
+  }
+  .category-card {
+    flex: 1;
+    min-width: 150px;
+    padding: 26px 20px;
+    text-align: center;
+    border: 1px solid var(--ink);
+    border-radius: 0;
+    background: transparent;
+    font-family: "Noto Sans JP", sans-serif;
+    font-weight: 400;
+    font-size: 15px;
+    letter-spacing: 0.08em;
+    color: var(--ink);
+    transition: background-color 0.2s ease, transform 0.2s ease;
+  }
+  .category-card:hover {
+    background: rgba(255, 255, 255, 0.07);
+    transform: translateY(-3px);
+  }
+
+  /* --- tracklist (history / novel lists) --- */
+  .section-label {
+    font-size: 12px;
+    letter-spacing: 0.2em;
+    color: var(--gray);
+    margin-bottom: 18px;
+  }
+  .tracklist {
+    list-style: none;
+    margin: 0 0 28px;
+    padding: 0;
+    border-top: 1px solid var(--line);
+  }
+  .tracklist li {
+    display: flex;
+    align-items: baseline;
+    gap: 14px;
+    padding: 16px 4px;
+    border-bottom: 1px solid var(--line);
+    font-size: 14px;
+  }
+  .tracklist .dot {
+    display: none;
+  }
+  .tracklist .date {
+    flex: none;
+    color: var(--gray-bright);
+    font-size: 12px;
+    letter-spacing: 0.03em;
+    min-width: 84px;
+  }
+  .tracklist .tag {
+    flex: none;
+    font-size: 11px;
+    color: var(--gray-bright);
+    border: 1px solid var(--line);
+    border-radius: 0;
+    padding: 1px 9px;
+    letter-spacing: 0.05em;
+  }
+  .tracklist .series-label {
+    flex: none;
+    font-size: 12px;
+    color: var(--gray-bright);
+    letter-spacing: 0.02em;
+  }
+  .tracklist .series-label::after {
+    content: "/";
+    margin-left: 14px;
+    color: var(--line);
+  }
+  .tracklist a {
+    color: var(--ink);
+  }
+  .tracklist a:hover { color: var(--gray); }
+
+  .more-link {
+    display: inline-block;
+    font-size: 13px;
+    color: var(--ink);
+    border-bottom: 1px solid var(--ink);
+  }
+
+  .empty {
+    color: var(--gray);
+    font-size: 14px;
+    padding: 20px 0;
+  }
+
+  /* --- novel layout (music column + text) --- */
+  .novel-layout {
+    display: grid;
+    grid-template-columns: 260px 1fr;
+    gap: 48px;
+    align-items: start;
+  }
+
+  .music-drawer {
+    border: 1px solid var(--line);
+    padding: 16px;
+    position: sticky;
+    top: 96px;
+  }
+  .music-drawer summary {
+    cursor: pointer;
+    font-size: 11px;
+    font-weight: 400;
+    letter-spacing: 0.18em;
+    color: var(--gray);
+    list-style: none;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .music-drawer summary::-webkit-details-marker { display: none; }
+  .music-drawer summary::before {
+    content: "▸";
+    font-size: 10px;
+    color: var(--gray-dim);
+    transition: transform 0.15s ease;
+  }
+  .music-drawer[open] summary::before {
+    transform: rotate(90deg);
+  }
+  .music-list {
+    margin-top: 16px;
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+  }
+  .music-list iframe {
+    width: 100%;
+    border-radius: 0;
+    display: block;
+    border: 1px solid var(--line);
+  }
+
+  .novel-main h1 { margin-bottom: 32px; }
+
+  @media (max-width: 768px) {
+    .novel-layout {
+      grid-template-columns: 1fr;
+      gap: 28px;
+    }
+    .music-drawer {
+      position: static;
+    }
+  }
+
+  /* legacy single-embed block (kept for other uses) */
+  .music-block {
+    margin: 8px 0 32px;
+    padding: 16px;
+    border: 1px solid var(--line);
+    border-radius: 0;
+    background: var(--paper);
+  }
+  .music-block .section-label { margin-bottom: 12px; }
+  .music-block iframe {
+    width: 100%;
+    border-radius: 0;
+    display: block;
+  }
+
+  .novel-body {
+    font-size: 14px;
+    font-weight: 400;
+    color: var(--ink);
+  }
+  .novel-body p { margin: 0 0 1.4em; }
+
+  .back-link {
+    display: inline-block;
+    margin-bottom: 12px;
+    font-size: 13px;
+    color: var(--gray);
+  }
+  .back-link:hover { color: var(--ink); }
+
+  /* --- profile --- */
+  .profile-image {
+    width: 100%;
+    max-width: 280px;
+    display: block;
+    border: 1px solid var(--line);
+    margin: 0 0 36px;
+  }
+
+  @media (max-width: 480px) {
+    .site-header { padding: 18px 20px; }
+    .site-nav { gap: 18px; }
+    .page { padding: 40px 20px 80px; }
+  }
+</style>

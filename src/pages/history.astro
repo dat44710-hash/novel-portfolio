@@ -1,0 +1,34 @@
+---
+import Layout from "../layouts/Layout.astro";
+import { client, getSeriesName } from "../lib/microcms";
+
+const response = await client.get({ endpoint: "toukou" });
+const novels = response.contents;
+
+const allNovels = novels.sort((a: any, b: any) => new Date(b.publishedAt).getTime() - new Date(a.publishedAt).getTime());
+---
+
+<Layout title="更新履歴 — note.">
+  <a href="/" class="back-link">← TOPに戻る</a>
+  <h1>更新履歴</h1>
+
+  {allNovels.length === 0 ? (
+    <p class="empty">まだ更新履歴はありません。</p>
+  ) : (
+    <ul class="tracklist">
+      {allNovels.map((novel: any) => {
+        const date = new Date(novel.publishedAt).toLocaleDateString();
+        const cat = novel.category ? novel.category[0] : "";
+        const series = getSeriesName(novel);
+        return (
+          <li>
+            <span class="date">{date}</span>
+            {cat && <span class="tag">{cat}</span>}
+            {series && <span class="series-label">{series}</span>}
+            <a href={`/novel/${novel.id}`}>{novel.title}</a>
+          </li>
+        );
+      })}
+    </ul>
+  )}
+</Layout>
