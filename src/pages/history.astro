@@ -1,4 +1,5 @@
 ---
+import { getAllPosts, getSeriesName, formatDate } from "../lib/microcms";
 import Layout from "../layouts/Layout.astro";
 import { client, getSeriesName } from "../lib/microcms";
 
@@ -17,7 +18,7 @@ const allNovels = novels.sort((a: any, b: any) => new Date(b.publishedAt).getTim
   ) : (
     <ul class="tracklist">
       {allNovels.map((novel: any) => {
-        const date = new Date(novel.publishedAt).toLocaleDateString();
+        const date = formatDate(novel.publishedAt);
         const cat = novel.category ? novel.category[0] : "";
         const series = getSeriesName(novel);
         return (
