@@ -48,7 +48,6 @@ const seriesEntries = Array.from(seriesMap.entries()).map(([name, items]) => {
 <Layout title={`${category} — note.`}>
   <a href="/" class="back-link">← 一覧に戻る</a>
   <h1>{category}</h1>
-  <p class="page-lead">{category}の作品一覧です。</p>
 
   {novels.length === 0 ? (
     <p class="empty">まだこのカテゴリには作品がありません。</p>
