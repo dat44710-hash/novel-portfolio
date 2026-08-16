@@ -21,3 +21,11 @@ export function getMusicUrls(novel) {
   const list = Array.isArray(raw) ? raw : String(raw).split(/\r?\n|,/);
   return list.map((u) => String(u).trim()).filter(Boolean);
 }
+// 日付を yyyy/mm/dd 形式（ゼロ埋め）に整形する
+export function formatDate(dateStr) {
+  const d = new Date(dateStr);
+  const yyyy = d.getFullYear();
+  const mm = String(d.getMonth() + 1).padStart(2, "0");
+  const dd = String(d.getDate()).padStart(2, "0");
+  return `${yyyy}/${mm}/${dd}`;
+}
