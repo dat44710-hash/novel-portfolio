@@ -1,12 +1,10 @@
 ---
-import { getAllPosts, getSeriesName, formatDate } from "../lib/microcms";
 import Layout from "../layouts/Layout.astro";
-import { client, getSeriesName } from "../lib/microcms";
+import { getAllPosts, getSeriesName, formatDate } from "../lib/microcms";
 
-const response = await client.get({ endpoint: "toukou" });
-const novels = response.contents;
-
-const allNovels = novels.sort((a: any, b: any) => new Date(b.publishedAt).getTime() - new Date(a.publishedAt).getTime());
+const allNovels = (await getAllPosts()).sort(
+  (a: any, b: any) => new Date(b.publishedAt).getTime() - new Date(a.publishedAt).getTime()
+);
 ---
 
 <Layout title="更新履歴 — note.">
