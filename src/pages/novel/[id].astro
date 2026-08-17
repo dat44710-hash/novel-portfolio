@@ -1,14 +1,11 @@
 ---
 import Layout from "../../layouts/Layout.astro";
-import { client, getMusicUrls, getSeriesName } from "../../lib/microcms";
+import { getAllPosts, getMusicUrls, getSeriesName } from "../../lib/microcms";
 
 export async function getStaticPaths() {
-  const response = await client.get({
-    endpoint: "toukou",
-    queries: { fields: "id" }
-  });
+  const posts = await getAllPosts({ fields: "id" });
 
-  return response.contents.map((content: any) => ({
+  return posts.map((content: any) => ({
     params: { id: content.id },
   }));
 }
@@ -16,8 +13,7 @@ export async function getStaticPaths() {
 const { id } = Astro.params;
 
 // 全記事の取得（シリーズ情報の判定用）
-const allPostsResponse = await client.get({ endpoint: "toukou" });
-const allPosts = allPostsResponse.contents;
+const allPosts = await getAllPosts();
 
 const blog = allPosts.find((item: any) => item.id === id);
 const musicUrls = getMusicUrls(blog);
