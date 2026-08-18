@@ -6,24 +6,13 @@ export const client = createClient({
   apiKey: import.meta.env.MICROCMS_API_KEY,
 });
 
-// toukouの投稿を「全件」取得する（microCMSは1回のリクエストにつき最大100件までしか
-// 返さないため、100件を超える場合はoffsetをずらして繰り返し取得する）
-export async function getAllPosts(extraQueries = {}) {
-  const limit = 100;
-  let offset = 0;
-  let all = [];
-
-  while (true) {
-    const res = await client.get({
-      endpoint: "toukou",
-      queries: { ...extraQueries, limit, offset },
-    });
-    all = all.concat(res.contents);
-    if (res.contents.length === 0 || all.length >= res.totalCount) break;
-    offset += limit;
-  }
-
-  return all;
+// toukouの投稿を「全件」取得する
+// （microCMS公式の getAllContents を使うことで、件数制限に関わらず自動で全件取得されます）
+export async function getAllPosts(queries = {}) {
+  return await client.getAllContents({
+    endpoint: "toukou",
+    queries,
+  });
 }
 
 // シリーズ名を取り出す（テキスト欄でも複数選択欄でも文字列に揃える）
